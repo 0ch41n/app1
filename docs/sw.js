@@ -1,10 +1,11 @@
 const CACHE_NAME = 'app1-v1';
+const BASE_PATH = '/app1';
 const PRECACHE = [
-  '/app1/',
-  '/app1/index.html',
-  '/app1/manifest.json',
-  '/app1/icons/icon-192.png',
-  '/app1/icons/icon-512.png'
+  `${BASE_PATH}/`,
+  `${BASE_PATH}/index.html`,
+  `${BASE_PATH}/manifest.json`,
+  `${BASE_PATH}/icons/icon-192.png`,
+  `${BASE_PATH}/icons/icon-512.png`
 ];
 
 self.addEventListener('install', event => {
@@ -25,10 +26,10 @@ self.addEventListener('fetch', event => {
       if (cached) return cached;
       return fetch(event.request).then(resp => {
         return caches.open(CACHE_NAME).then(cache => {
-          try { cache.put(event.request, resp.clone()); } catch(e) { /* algunas peticiones no son cacheables */ }
+          try { cache.put(event.request, resp.clone()); } catch(e) { /* some requests are not cacheable */ }
           return resp;
         });
       });
-    }).catch(() => caches.match('/app1/index.html'))
+    }).catch(() => caches.match(`${BASE_PATH}/index.html`))
   );
 });
