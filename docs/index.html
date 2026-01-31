@@ -10,25 +10,49 @@
   <style>
     body { display:flex; align-items:center; justify-content:center; height:100vh; margin:0; font-family:Arial, sans-serif; background:#ffffff; color:#0d47a1;}
     .logo { text-align:center; }
+    button { margin:8px; padding:10px 16px; font-size:16px; }
   </style>
 </head>
 <body>
   <div class="logo">
     <img src="/app1/icons/icon-192.png" alt="Fichaje" width="96" height="96" />
-    <p>Abriendo Control Fichaje…</p>
+    <p>Control Fichaje</p>
+    <div>
+      <button id="installBtn" style="display:none">Instalar en la pantalla de inicio</button>
+      <button id="openBtn">Abrir Control Fichaje</button>
+    </div>
   </div>
 
   <script>
-    // Registrar service worker para cumplir requisito de "installable"
+    const TARGET = 'https://controlfichaje.gruposherco.com/';
+    // Registrar service worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/app1/sw.js').catch(e => console.warn('SW error', e));
+      navigator.serviceWorker.register('/app1/sw.js')
+        .catch(e => console.warn('SW error', e));
     }
 
-    // Redirigir a la web objetivo. Usamos replace para no dejar historial.
-    const TARGET = 'https://controlfichaje.gruposherco.com/';
-    setTimeout(() => {
+    // beforeinstallprompt para mostrar nuestro propio botón de instalación
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+    const openBtn = document.getElementById('openBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'inline-block';
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBtn.style.display = 'none';
+    });
+
+    openBtn.addEventListener('click', () => {
       window.location.replace(TARGET);
-    }, 350);
+    });
   </script>
 </body>
 </html>
